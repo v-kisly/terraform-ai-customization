@@ -1,0 +1,39 @@
+settings:
+  report_file: terraform-quality-report.md
+
+tools:
+  fmt:
+    enabled: true
+    name: fmt
+    description: Check Terraform formatting recursively.
+    continue_on_error: false
+    commands:
+      - terraform fmt -no-color -check -recursive
+
+  validate:
+    enabled: true
+    name: validate
+    description: Initialize providers without backend access and validate configuration.
+    continue_on_error: false
+    commands:
+      - terraform init -no-color -backend=false -input=false
+      - terraform validate -no-color
+
+  tflint:
+    enabled: true
+    name: tflint
+    description: Run TFLint in Docker.
+    requires_docker: true
+    continue_on_error: false
+    commands:
+      - docker run --rm -v "$PWD:/workspace" -w /workspace ghcr.io/terraform-linters/tflint:latest --init --no-color
+      - docker run --rm -v "$PWD:/workspace" -w /workspace ghcr.io/terraform-linters/tflint:latest -f compact --no-color
+
+  tfsec:
+    enabled: true
+    name: tfsec
+    description: Run tfsec in Docker.
+    requires_docker: true
+    continue_on_error: false
+    commands:
+      - docker run --rm -v "$PWD:/workspace" aquasec/tfsec:latest /workspace --format lovely --no-color
